@@ -88,14 +88,14 @@
 
 <meta name="description" content="相信多数人都清楚weak是弱引用，所引用对象的计数器不会加一，并在引用对象被释放的时候自动被设置为nil，通常用于解决循环引用问题 一起来学习下weak的底层实现，本文基于objc4-750 点此下载 weak常见的就是以weak修饰的变量以及声明为weak的property、var来看下\weak变量的声明及赋值/**  * Initialize a fresh weak pointer to">
 <meta property="og:type" content="article">
-<meta property="og:title" content="weak深入理解">
+<meta property="og:title" content="objc源码解析| weak实现">
 <meta property="og:url" content="https://yonglefu.github.io/2018/12/10/objc_weak/index.html">
 <meta property="og:site_name" content="Yongle の notes">
 <meta property="og:description" content="相信多数人都清楚weak是弱引用，所引用对象的计数器不会加一，并在引用对象被释放的时候自动被设置为nil，通常用于解决循环引用问题 一起来学习下weak的底层实现，本文基于objc4-750 点此下载 weak常见的就是以weak修饰的变量以及声明为weak的property、var来看下\weak变量的声明及赋值/**  * Initialize a fresh weak pointer to">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-12-10T14:22:58.521Z">
+<meta property="og:updated_time" content="2018-12-10T14:35:58.234Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="weak深入理解">
+<meta name="twitter:title" content="objc源码解析| weak实现">
 <meta name="twitter:description" content="相信多数人都清楚weak是弱引用，所引用对象的计数器不会加一，并在引用对象被释放的时候自动被设置为nil，通常用于解决循环引用问题 一起来学习下weak的底层实现，本文基于objc4-750 点此下载 weak常见的就是以weak修饰的变量以及声明为weak的property、var来看下\weak变量的声明及赋值/**  * Initialize a fresh weak pointer to">
 
 
@@ -132,7 +132,7 @@
 
 
 
-  <title>weak深入理解 | Yongle の notes</title>
+  <title>objc源码解析| weak实现 | Yongle の notes</title>
   
 
 
@@ -244,7 +244,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">weak深入理解</h2>
+          <h2 class="post-title" itemprop="name headline">objc源码解析| weak实现</h2>
         
 
         <div class="post-meta">
@@ -315,10 +315,10 @@
 <ul>
 <li><p>清理旧对象<br>在weak表中进行unregister操作</p>
 </li>
-<li><p>设置新对象<br>首先执行了防止死锁的检测及初始化cls操作，保证被弱引用对象的isa都是已经初始化过的<br>接着在weak表中进行register操作<br>register成功后设置weakly_referenced，nonpointer设置isa.weakly_referenced，非nonpointer设置sidetable<br>table.refcnts[this] |= SIDE_TABLE_WEAKLY_REFERENCED<br>最后进行赋值</p>
+<li><p>设置新对象<br>首先执行了防止死锁的检测及初始化cls操作，保证被弱引用对象的isa都是已经初始化过的<br>接着在weak表中进行register操作<br>register成功后设置对象的弱引用标识，nonpointer设置isa.weakly_referenced，非nonpointer设置sidetable<br>table.refcnts[this] |= SIDE_TABLE_WEAKLY_REFERENCED<br>最后进行赋值</p>
 </li>
 </ul>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Assign new value, if any.</span></span><br><span class="line"><span class="keyword">if</span> (haveNew) &#123;</span><br><span class="line">    newObj = (objc_object *)</span><br><span class="line">        weak_register_no_lock(&amp;newTable-&gt;weak_table, (<span class="keyword">id</span>)newObj, location, </span><br><span class="line">                                crashIfDeallocating);</span><br><span class="line">    <span class="comment">// weak_register_no_lock returns nil if weak store should be rejected</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Set is-weakly-referenced bit in refcount table.</span></span><br><span class="line">    <span class="keyword">if</span> (newObj  &amp;&amp;  !newObj-&gt;isTaggedPointer()) &#123;</span><br><span class="line">        newObj-&gt;setWeaklyReferenced_nolock();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Do not set *location anywhere else. That would introduce a race.</span></span><br><span class="line">    *location = (<span class="keyword">id</span>)newObj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">objc_object::setWeaklyReferenced_nolock()</span><br><span class="line">&#123;</span><br><span class="line"> retry:</span><br><span class="line">    isa_t oldisa = LoadExclusive(&amp;isa.bits);</span><br><span class="line">    isa_t newisa = oldisa;</span><br><span class="line">    <span class="keyword">if</span> (slowpath(!newisa.nonpointer)) &#123;</span><br><span class="line">        ClearExclusive(&amp;isa.bits);</span><br><span class="line">        sidetable_setWeaklyReferenced_nolock();</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newisa.weakly_referenced) &#123;</span><br><span class="line">        ClearExclusive(&amp;isa.bits);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    newisa.weakly_referenced = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (!StoreExclusive(&amp;isa.bits, oldisa.bits, newisa.bits)) <span class="keyword">goto</span> retry;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> objc_object::sidetable_setWeaklyReferenced_nolock()</span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#if SUPPORT_NONPOINTER_ISA</span></span><br><span class="line">    assert(!isa.nonpointer);</span><br><span class="line"><span class="meta">#endif</span></span><br><span class="line"></span><br><span class="line">    SideTable&amp; table = SideTables()[<span class="keyword">this</span>];</span><br><span class="line"></span><br><span class="line">    table.refcnts[<span class="keyword">this</span>] |= SIDE_TABLE_WEAKLY_REFERENCED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>设置对象的弱引用标识实现<br><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">objc_object::setWeaklyReferenced_nolock()</span><br><span class="line">&#123;</span><br><span class="line"> retry:</span><br><span class="line">    isa_t oldisa = LoadExclusive(&amp;isa.bits);</span><br><span class="line">    isa_t newisa = oldisa;</span><br><span class="line">    <span class="keyword">if</span> (slowpath(!newisa.nonpointer)) &#123;</span><br><span class="line">        ClearExclusive(&amp;isa.bits);</span><br><span class="line">        sidetable_setWeaklyReferenced_nolock();</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newisa.weakly_referenced) &#123;</span><br><span class="line">        ClearExclusive(&amp;isa.bits);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    newisa.weakly_referenced = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (!StoreExclusive(&amp;isa.bits, oldisa.bits, newisa.bits)) <span class="keyword">goto</span> retry;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> objc_object::sidetable_setWeaklyReferenced_nolock()</span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#if SUPPORT_NONPOINTER_ISA</span></span><br><span class="line">    assert(!isa.nonpointer);</span><br><span class="line"><span class="meta">#endif</span></span><br><span class="line"></span><br><span class="line">    SideTable&amp; table = SideTables()[<span class="keyword">this</span>];</span><br><span class="line"></span><br><span class="line">    table.refcnts[<span class="keyword">this</span>] |= SIDE_TABLE_WEAKLY_REFERENCED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>接着看weak表部分的实现，首先看下weak_table_t</p>
 <figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The global weak references table. Stores object ids as keys,</span></span><br><span class="line"><span class="comment"> * and weak_entry_t structs as their values.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">struct</span> weak_table_t &#123;</span><br><span class="line">    weak_entry_t *weak_entries;</span><br><span class="line">    size_t    num_entries;</span><br><span class="line">    uintptr_t mask;</span><br><span class="line">    uintptr_t max_hash_displacement;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Grow the given zone's table of weak references if it is full.</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> weak_grow_maybe(weak_table_t *weak_table)</span><br><span class="line">&#123;</span><br><span class="line">    size_t old_size = TABLE_SIZE(weak_table);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Grow if at least 3/4 full.</span></span><br><span class="line">    <span class="keyword">if</span> (weak_table-&gt;num_entries &gt;= old_size * <span class="number">3</span> / <span class="number">4</span>) &#123;</span><br><span class="line">        weak_resize(weak_table, old_size ? old_size*<span class="number">2</span> : <span class="number">64</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Shrink the table if it is mostly empty.</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> weak_compact_maybe(weak_table_t *weak_table)</span><br><span class="line">&#123;</span><br><span class="line">    size_t old_size = TABLE_SIZE(weak_table);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Shrink if larger than 1024 buckets and at most 1/16 full.</span></span><br><span class="line">    <span class="keyword">if</span> (old_size &gt;= <span class="number">1024</span>  &amp;&amp; old_size / <span class="number">16</span> &gt;= weak_table-&gt;num_entries) &#123;</span><br><span class="line">        weak_resize(weak_table, old_size / <span class="number">8</span>);</span><br><span class="line">        <span class="comment">// leaves new table no more than 1/2 full</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>每个弱引用对象存储于一个weak_entry_t，num_entries为已使用数量，mask为当前总容量，max_hash_displacement为hash寻址最大冲突数<br>weak表会根据情况进行扩容（超过3/4）或者收缩(大于1024且使用率不足1/16)</p>
@@ -363,8 +363,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/12/10/objc_retain/" rel="next" title="引用计数深入理解">
-                <i class="fa fa-chevron-left"></i> 引用计数深入理解
+              <a href="/2018/12/10/objc_retain/" rel="next" title="objc源码解析| 引用计数之retain release">
+                <i class="fa fa-chevron-left"></i> objc源码解析| 引用计数之retain release
               </a>
             
           </div>
@@ -635,7 +635,7 @@
         var disqus_config = function () {
           this.page.url = 'https://yonglefu.github.io/2018/12/10/objc_weak/';
           this.page.identifier = '2018/12/10/objc_weak/';
-          this.page.title = 'weak深入理解';
+          this.page.title = 'objc源码解析| weak实现';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://.disqus.com/embed.js';
