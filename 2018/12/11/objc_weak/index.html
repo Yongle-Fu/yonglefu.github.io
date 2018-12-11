@@ -88,14 +88,14 @@
 
 <meta name="description" content="相信多数人都清楚weak是弱引用，所引用对象的计数器不会加一，并在引用对象被释放的时候自动被设置为nil，通常用于解决循环引用问题 一起来学习下weak的底层实现，本文基于objc4-750 点此下载 weak常见的就是以weak修饰的变量以及声明为weak的property、var来看下\weak变量的声明及赋值/**  * Initialize a fresh weak pointer to">
 <meta property="og:type" content="article">
-<meta property="og:title" content="objc源码解析| weak实现">
-<meta property="og:url" content="https://yonglefu.github.io/2018/12/10/objc_weak/index.html">
+<meta property="og:title" content="objc源码解析 | weak实现">
+<meta property="og:url" content="https://yonglefu.github.io/2018/12/11/objc_weak/index.html">
 <meta property="og:site_name" content="Yongle の notes">
 <meta property="og:description" content="相信多数人都清楚weak是弱引用，所引用对象的计数器不会加一，并在引用对象被释放的时候自动被设置为nil，通常用于解决循环引用问题 一起来学习下weak的底层实现，本文基于objc4-750 点此下载 weak常见的就是以weak修饰的变量以及声明为weak的property、var来看下\weak变量的声明及赋值/**  * Initialize a fresh weak pointer to">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-12-10T14:35:58.234Z">
+<meta property="og:updated_time" content="2018-12-11T12:42:01.507Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="objc源码解析| weak实现">
+<meta name="twitter:title" content="objc源码解析 | weak实现">
 <meta name="twitter:description" content="相信多数人都清楚weak是弱引用，所引用对象的计数器不会加一，并在引用对象被释放的时候自动被设置为nil，通常用于解决循环引用问题 一起来学习下weak的底层实现，本文基于objc4-750 点此下载 weak常见的就是以weak修饰的变量以及声明为weak的property、var来看下\weak变量的声明及赋值/**  * Initialize a fresh weak pointer to">
 
 
@@ -126,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="https://yonglefu.github.io/2018/12/10/objc_weak/">
+  <link rel="canonical" href="https://yonglefu.github.io/2018/12/11/objc_weak/">
 
 
 
 
 
-  <title>objc源码解析| weak实现 | Yongle の notes</title>
+  <title>objc源码解析 | weak实现 | Yongle の notes</title>
   
 
 
@@ -227,7 +227,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://yonglefu.github.io/2018/12/10/objc_weak/">
+    <link itemprop="mainEntityOfPage" href="https://yonglefu.github.io/2018/12/11/objc_weak/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yongle">
@@ -244,7 +244,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">objc源码解析| weak实现</h2>
+          <h2 class="post-title" itemprop="name headline">objc源码解析 | weak实现</h2>
         
 
         <div class="post-meta">
@@ -254,8 +254,8 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-12-10T21:21:32+08:00">
-                2018-12-10
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-12-11T20:42:01+08:00">
+                2018-12-11
               </time>
             
 
@@ -273,8 +273,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/12/10/objc_weak/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/12/10/objc_weak/" itemprop="commentCount"></span>
+                <a href="/2018/12/11/objc_weak/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/12/11/objc_weak/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -363,8 +363,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/12/10/objc_retain/" rel="next" title="objc源码解析| 引用计数之retain release">
-                <i class="fa fa-chevron-left"></i> objc源码解析| 引用计数之retain release
+              <a href="/2018/12/11/objc_retain/" rel="next" title="objc源码解析 | 引用计数之retain release">
+                <i class="fa fa-chevron-left"></i> objc源码解析 | 引用计数之retain release
               </a>
             
           </div>
@@ -451,7 +451,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -633,9 +633,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://yonglefu.github.io/2018/12/10/objc_weak/';
-          this.page.identifier = '2018/12/10/objc_weak/';
-          this.page.title = 'objc源码解析| weak实现';
+          this.page.url = 'https://yonglefu.github.io/2018/12/11/objc_weak/';
+          this.page.identifier = '2018/12/11/objc_weak/';
+          this.page.title = 'objc源码解析 | weak实现';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://.disqus.com/embed.js';
