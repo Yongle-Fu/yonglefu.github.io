@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next mist use-motion" lang="">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -75,7 +75,7 @@
 
 
 
-  <meta name="keywords" content="iOS, OC, Swift">
+  <meta name="keywords" content="objc,">
 
 
 
@@ -87,13 +87,14 @@
 
 
 <meta name="description" content="本文基于objc4-750 点此下载 @interface NSObject &amp;lt;NSObject&amp;gt; &amp;#123;#pragma clang diagnostic push#pragma clang diagnostic ignored &quot;-Wobjc-interface-ivars&quot;    Class isa  OBJC_ISA_AVAILABILITY;#pragma clang d">
+<meta name="keywords" content="objc">
 <meta property="og:type" content="article">
 <meta property="og:title" content="objc源码解析 | 引用计数之retain release">
-<meta property="og:url" content="https://yonglefu.github.io/2018/12/11/objc_retain/index.html">
+<meta property="og:url" content="https://yonglefu.github.io/2018/12/08/objc_retain/index.html">
 <meta property="og:site_name" content="Yongle の notes">
 <meta property="og:description" content="本文基于objc4-750 点此下载 @interface NSObject &amp;lt;NSObject&amp;gt; &amp;#123;#pragma clang diagnostic push#pragma clang diagnostic ignored &quot;-Wobjc-interface-ivars&quot;    Class isa  OBJC_ISA_AVAILABILITY;#pragma clang d">
-<meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-12-11T12:42:01.506Z">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-12-11T13:17:34.729Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="objc源码解析 | 引用计数之retain release">
 <meta name="twitter:description" content="本文基于objc4-750 点此下载 @interface NSObject &amp;lt;NSObject&amp;gt; &amp;#123;#pragma clang diagnostic push#pragma clang diagnostic ignored &quot;-Wobjc-interface-ivars&quot;    Class isa  OBJC_ISA_AVAILABILITY;#pragma clang d">
@@ -112,7 +113,7 @@
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
-      author: 'Author'
+      author: '博主'
     },
     algolia: {
       applicationID: '',
@@ -126,7 +127,7 @@
 
 
 
-  <link rel="canonical" href="https://yonglefu.github.io/2018/12/11/objc_retain/">
+  <link rel="canonical" href="https://yonglefu.github.io/2018/12/08/objc_retain/">
 
 
 
@@ -144,7 +145,7 @@
 
 </head>
 
-<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
@@ -190,7 +191,15 @@
         <li class="menu-item menu-item-home">
           <a href="/" rel="section">
             
-            Home
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+            归档
           </a>
         </li>
       
@@ -227,7 +236,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://yonglefu.github.io/2018/12/11/objc_retain/">
+    <link itemprop="mainEntityOfPage" href="https://yonglefu.github.io/2018/12/08/objc_retain/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yongle">
@@ -254,8 +263,8 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-12-11T20:42:01+08:00">
-                2018-12-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-08T00:00:00+08:00">
+                2018-12-08
               </time>
             
 
@@ -273,8 +282,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/12/11/objc_retain/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/12/11/objc_retain/" itemprop="commentCount"></span>
+                <a href="/2018/12/08/objc_retain/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/12/08/objc_retain/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -359,6 +368,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/objc/" rel="tag"># objc</a>
+          
+        </div>
+      
 
       
       
@@ -368,17 +383,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/12/11/objc_autorelease/" rel="next" title="objc源码解析| autorelease">
-                <i class="fa fa-chevron-left"></i> objc源码解析| autorelease
-              </a>
-            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/12/11/objc_weak/" rel="prev" title="objc源码解析 | weak实现">
+              <a href="/2018/12/09/objc_weak/" rel="prev" title="objc源码解析 | weak实现">
                 objc源码解析 | weak实现 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -458,16 +469,25 @@
             
               <div class="site-state-item site-state-posts">
               
-                <a href="/archives">
+                <a href="/archives/">
               
                   <span class="site-state-item-count">3</span>
-                  <span class="site-state-item-name">posts</span>
+                  <span class="site-state-item-name">日志</span>
                 </a>
               </div>
             
 
             
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
             
 
           </nav>
@@ -511,7 +531,7 @@
 </div>
 
 
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
 
 
 
@@ -642,8 +662,8 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://yonglefu.github.io/2018/12/11/objc_retain/';
-          this.page.identifier = '2018/12/11/objc_retain/';
+          this.page.url = 'https://yonglefu.github.io/2018/12/08/objc_retain/';
+          this.page.identifier = '2018/12/08/objc_retain/';
           this.page.title = 'objc源码解析 | 引用计数之retain release';
         };
         var d = document, s = d.createElement('script');
