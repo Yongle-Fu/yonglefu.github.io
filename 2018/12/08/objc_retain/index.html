@@ -86,18 +86,18 @@
 
 
 
-<meta name="description" content="本文基于objc4-750 点此下载 @interface NSObject &amp;lt;NSObject&amp;gt; &amp;#123;#pragma clang diagnostic push#pragma clang diagnostic ignored &quot;-Wobjc-interface-ivars&quot;    Class isa  OBJC_ISA_AVAILABILITY;#pragma clang d">
+<meta name="description" content="引用计数是iOS管理对象生命周期的方式，不管是OC还是Swift语言，其内存管理方式都是基于引用计数的 来学习下引用计数底层是如何实现的，本文基于objc4-750 点此下载">
 <meta name="keywords" content="objc">
 <meta property="og:type" content="article">
 <meta property="og:title" content="objc源码解析 | 引用计数之retain release">
 <meta property="og:url" content="https://yonglefu.github.io/2018/12/08/objc_retain/index.html">
 <meta property="og:site_name" content="Yongle の notes">
-<meta property="og:description" content="本文基于objc4-750 点此下载 @interface NSObject &amp;lt;NSObject&amp;gt; &amp;#123;#pragma clang diagnostic push#pragma clang diagnostic ignored &quot;-Wobjc-interface-ivars&quot;    Class isa  OBJC_ISA_AVAILABILITY;#pragma clang d">
+<meta property="og:description" content="引用计数是iOS管理对象生命周期的方式，不管是OC还是Swift语言，其内存管理方式都是基于引用计数的 来学习下引用计数底层是如何实现的，本文基于objc4-750 点此下载">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-11T13:17:34.729Z">
+<meta property="og:updated_time" content="2018-12-20T16:59:13.247Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="objc源码解析 | 引用计数之retain release">
-<meta name="twitter:description" content="本文基于objc4-750 点此下载 @interface NSObject &amp;lt;NSObject&amp;gt; &amp;#123;#pragma clang diagnostic push#pragma clang diagnostic ignored &quot;-Wobjc-interface-ivars&quot;    Class isa  OBJC_ISA_AVAILABILITY;#pragma clang d">
+<meta name="twitter:description" content="引用计数是iOS管理对象生命周期的方式，不管是OC还是Swift语言，其内存管理方式都是基于引用计数的 来学习下引用计数底层是如何实现的，本文基于objc4-750 点此下载">
 
 
 
@@ -311,7 +311,8 @@
       
 
       
-        <p>本文基于objc4-750 <a href="https://opensource.apple.com/tarballs/objc4/" target="_blank" rel="noopener">点此下载</a></p>
+        <p>引用计数是iOS管理对象生命周期的方式，不管是OC还是Swift语言，其内存管理方式都是基于引用计数的</p>
+<p>来学习下引用计数底层是如何实现的，本文基于objc4-750 <a href="https://opensource.apple.com/tarballs/objc4/" target="_blank" rel="noopener">点此下载</a><br><a id="more"></a></p>
 <figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSObject</span> &lt;<span class="title">NSObject</span>&gt; </span>&#123;</span><br><span class="line"><span class="meta">#pragma clang diagnostic push</span></span><br><span class="line"><span class="meta">#pragma clang diagnostic ignored <span class="meta-string">"-Wobjc-interface-ivars"</span></span></span><br><span class="line">    Class isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line"><span class="meta">#pragma clang diagnostic pop</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> objc_class *Class;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> objc_object *<span class="keyword">id</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> objc_object &#123;</span><br><span class="line">private:</span><br><span class="line">    isa_t isa;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</span><br><span class="line">    <span class="comment">// Class ISA;</span></span><br><span class="line">    Class superclass;</span><br><span class="line">    cache_t cache;             <span class="comment">// formerly cache pointer and vtable</span></span><br><span class="line">    class_data_bits_t bits;    <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>可以看出所有类、对象最终都由objc_object组成</p>
 <p>来看下引用计数</p>
@@ -471,7 +472,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -484,7 +485,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
